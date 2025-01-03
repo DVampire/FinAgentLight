@@ -11,8 +11,8 @@ from finagentlight.utils.message import Message, TextContent
 if __name__ == '__main__':
     # Create an LLMConfig object
     config = LLMConfig(
-        model='claude-3-5-sonnet-20241022',
-        api_key=os.environ.get('CLAUDE_API_KEY'),
+        model='o1-preview',
+        api_key=os.environ.get('OPENAI_API_KEY'),
     )
 
     # Create an LLM object

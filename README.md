@@ -10,9 +10,9 @@ curl -sSL https://install.python-poetry.org | python3 -
 poetry install
 ```
 
-## Dev
+## Development
 ```bash
-# install
+# install the environment
 make install
 
 # configure pre-commit
