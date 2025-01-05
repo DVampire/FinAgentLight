@@ -1,31 +1,23 @@
-import os
+from typing import Any, Dict
 
 import dotenv
 
 dotenv.load_dotenv()
 
 from finagentlight.llm import LLM
-from finagentlight.utils.llm_config import LLMConfig
-from finagentlight.utils.message import Message, TextContent
+from finagentlight.registry import AGENT
 
-if __name__ == '__main__':
-    # Create an LLMConfig object
-    config = LLMConfig(
-        model='o1-preview',
-        api_key=os.environ.get('OPENAI_API_KEY'),
-    )
 
-    # Create an LLM object
-    llm = LLM(config)
+@AGENT.register_module(force=True)
+class Agent:
+    def __init__(self, llm: LLM):
+        self.llm = llm
 
-    content = [TextContent(text='Hello, how are you?')]
-    message = Message(role='user', content=content)
-    messages = [message]
+    def reset(self):
+        pass
 
-    params: dict = {
-        'messages': llm.format_messages_for_llm(messages),
-        'tools': [],
-    }
+    def step(self, state: Dict[str, Any]):
+        pass
 
-    response = llm.completion(**params)
-    print(response)
+    def _get_messages(self, state: Dict[str, Any]):
+        pass

@@ -566,7 +566,7 @@ if __name__ == '__main__':
         initial_amount=float(1e5),
         transaction_cost_pct=float(1e-4),
         timestamp_format='%Y-%m-%d',
-        start_timestamp='2020-01-02',
+        start_timestamp='2020-04-02',
         end_timestamp='2023-12-29',
         history_timestamps=14,
         future_timestamps=14,
