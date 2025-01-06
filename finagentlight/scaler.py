@@ -157,11 +157,8 @@ class WindowedScaler(BaseScaler):
         mean = np.array([item[0] for item in mean_std])
         std = np.array([item[1] for item in mean_std])
 
-        # adjust mean and std
-        mean = np.array(
-            [mean[0]] + mean[:-1]
-        )  # add first window, remove the last window
-        std = np.array([std[0]] + std[:-1])  # add first window, remove the last window
+        mean = np.concatenate([np.array(mean[0]).reshape(1, -1), mean[:-1]], axis=0)
+        std = np.concatenate([np.array(std[0]).reshape(1, -1), std[:-1]], axis=0)
 
         # repeat mean and std
         mean = mean.repeat(repeats=self.window_size, axis=0)

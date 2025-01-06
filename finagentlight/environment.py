@@ -12,6 +12,8 @@ import pandas as pd
 from finagentlight.registry import DATASET, ENVIRONMENT
 from finagentlight.utils.file_utils import assemble_project_path
 
+__all__ = ['Environment']
+
 
 @ENVIRONMENT.register_module(force=True)
 class Environment(gym.Env):
@@ -39,6 +41,18 @@ class Environment(gym.Env):
         assert (
             self.select_asset in self.assets and self.select_asset is not None
         ), f'select_asset {self.select_asset} not in assets {self.assets}'
+
+        asset_info = self.dataset.assets[self.select_asset]
+
+        self.asset_info = dict(
+            asset_symbol=asset_info['symbol'],
+            asset_name=asset_info['companyName'],
+            asset_type=asset_info['type'],
+            asset_exchange=asset_info['exchange'],
+            asset_sector=asset_info['sector'],
+            asset_industry=asset_info['industry'],
+            asset_description=asset_info['description'],
+        )
 
         self.initial_amount = initial_amount
         self.transaction_cost_pct = transaction_cost_pct
@@ -163,11 +177,13 @@ class Environment(gym.Env):
         future_news = self.news_df.loc[future_start_timestamp:future_end_timestamp]
 
         state = dict(
+            timestamp=history_end_timestamp,
             history_price=history_price,
             history_news=history_news,
             future_price=future_price,
             future_news=future_news,
         )
+        state.update(self.asset_info)
 
         return state
 
@@ -291,7 +307,10 @@ class Environment(gym.Env):
 
         return self.state, info
 
-    def step(self, action: int = 1):
+    def step(self, action: int | str):
+        if isinstance(action, str):
+            action = self.action_labels.index(action)
+
         action = action - 1  # modify the action to -1, 0, 1
 
         if action > 0:

@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -79,7 +80,7 @@ class Dataset(torch.utils.data.Dataset):
         else:
             self.scalers = None
 
-        self.assets = self._init_assets()
+        self.assets = self._init_assets_info()
         self.features_df_dict, self.news_df_dict = self._load_assets_df(self.assets)
 
         if os.path.exists(self.data_file):
@@ -97,9 +98,12 @@ class Dataset(torch.utils.data.Dataset):
             save_joblib(self.data, self.data_file)
             save_joblib(self.meta_info, self.meta_info_file)
 
-    def _init_assets(self):
+    def _init_assets_info(self):
         assets = json.load(self.assets_path)
-        assets = [asset['symbol'] for asset in assets]
+        assets = OrderedDict(sorted(assets.items(), key=lambda x: x[0]))
+        for key, value in assets.items():
+            value.update({'type': 'stock'})
+            assets[key] = value
         return assets
 
     def _load_assets_df(
@@ -153,7 +157,7 @@ class Dataset(torch.utils.data.Dataset):
 
     def _init_data(
         self,
-        assets: List[str],
+        assets: Dict[str, Any],
         features_df_dict: Dict[str, pd.DataFrame],
         news_df_dict: Dict[str, pd.DataFrame],
         scalers: Dict[str, Any],
@@ -223,6 +227,8 @@ class Dataset(torch.utils.data.Dataset):
 
             price = feature_df[self.prices_name]
             label = feature_df[self.labels_name]
+
+            news_df['id'] = pd.Series(range(len(news_df)))
             news = news_df
 
             data = dict(
@@ -265,13 +271,14 @@ class Dataset(torch.utils.data.Dataset):
 
     def _init_meta_info(
         self,
-        assets: List[str],
+        assets: Dict[str, Any],
         features_df_dict: Dict[str, pd.DataFrame],
         news_df_dict: Dict[str, pd.DataFrame],
     ):
         data_infos = {}
 
-        first_asset = features_df_dict[assets[0]]
+        assets_name = list(assets.keys())
+        first_asset = features_df_dict[assets_name[0]]
         future_timestamps = self.future_timestamps if self.if_use_future else 0
 
         for asset in assets:

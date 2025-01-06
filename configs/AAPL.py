@@ -5,7 +5,7 @@ exp_path = f'{workdir}/{tag}'
 
 history_timestamps = 14
 future_timestamps = 14
-start_timestamp = '2020-04-02'
+start_timestamp = '2020-01-02'
 end_timestamp = '2023-12-29'
 initial_amount = int(1e5)
 transaction_cost_pct = float(1e-4)
@@ -191,8 +191,8 @@ dataset = dict(
     meta_info_file='meta_info.joblib',
     history_timestamps=history_timestamps,
     future_timestamps=future_timestamps,
-    start_timestamp='2020-01-02',
-    end_timestamp='2023-12-29',
+    start_timestamp=start_timestamp,
+    end_timestamp=end_timestamp,
     timestamp_format='%Y-%m-%d',
     exp_path=exp_path,
 )
@@ -209,4 +209,13 @@ environment = dict(
     history_timestamps=history_timestamps,
     future_timestamps=future_timestamps,
     step_timestamps=1,
+)
+
+llm = dict(type='LLM', model='claude-3-5-sonnet-20241022')
+
+agent = dict(
+    type='Agent',
+    llm=None,
+    system_prompt_path='assets/system_prompt.txt',
+    user_prompt_path='assets/user_prompt.txt',
 )

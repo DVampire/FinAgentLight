@@ -15,7 +15,8 @@ root = str(pathlib.Path(__file__).resolve().parents[0])
 sys.path.append(root)
 
 from finagentlight.config import build_config
-from finagentlight.registry import AGENT, DATASET, ENVIRONMENT
+from finagentlight.logger import logger
+from finagentlight.registry import AGENT, DATASET, ENVIRONMENT, LLM
 from finagentlight.utils.file_utils import assemble_project_path
 
 
@@ -56,16 +57,35 @@ def main(args):
     env_cfg['dataset'] = dataset
     environment = ENVIRONMENT.build(config.environment)
 
-    # 4. init agent
+    # 4. llm
+    llm = LLM.build(config.llm)
+
+    # 5. init agent
+    config.agent['llm'] = llm
     agent = AGENT.build(config.agent)
+    agent.reset()
 
     state, info = environment.reset()
-    # 5. train
+    logger.info(
+        f'Timestamp: {info['timestamp']}, '
+        f'Cash: {info['cash']}, '
+        f'Position: {info['position']}, '
+        f'Total Profit: {info['total_profit']}\n'
+    )
+
+    # 6. run
     while True:
-        response = agent.step(state)
-        if 'decision_making_decision' in response:
+        action = agent.step(state)
+        if 'decision_making_decision' in action:
             state, reward, done, truncted, info = environment.step(
-                response['decision_making_decision']
+                action['decision_making_decision']
+            )
+            state.update(action)
+            logger.info(
+                f'Timestamp: {info['timestamp']}, '
+                f'Cash: {info['cash']}, '
+                f'Position: {info['position']}, '
+                f'Total Profit: {info['total_profit']}.\n'
             )
         else:
             continue
